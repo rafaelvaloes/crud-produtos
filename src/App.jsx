@@ -10,9 +10,9 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/create" element={<Create />} />
-        <Route path="/edit/:id" element={<Edit />} />
-        <Route path="/delete/:id" element={<Delete />} />
+        <Route path="/create" element={<Create showNavbar={true} />} />
+        <Route path="/edit/:id" element={<Edit showNavbar={true} />} />
+        <Route path="/delete/:id" element={<Delete showNavbar={true} />} />
       </Routes>
     </Router>
   );

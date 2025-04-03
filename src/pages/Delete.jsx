@@ -1,54 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 
 function Delete() {
-  const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { id } = useParams(); // Pegando o id do produto na URL
   const authToken = localStorage.getItem("authToken");
 
-  useEffect(() => {
-    const deleteProduct = async () => {
-      if (!authToken) {
-        setMessage("Erro de autenticação. Faça login novamente.");
-        return;
-      }
-
-      try {
-        const response = await axios.delete(
-          "http://34.71.240.100/api/product/delete", // Endpoint de exclusão
-          {
-            data: { id }, // Passando o ID no corpo da requisição
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log("Resposta da API:", response.data);
-
-        if (response.data.success) {
-          setMessage("Produto excluído com sucesso!");
-          setTimeout(() => navigate("/"), 2000); // Redirecionando após 2 segundos
-        } else {
-          setMessage("Não foi possível excluir o produto.");
-        }
-      } catch (error) {
-        console.error("Erro ao excluir produto:", error);
-        setMessage(""); // Removido a mensagem de erro
-      }
-    };
-
-    deleteProduct();
-  }, [id, authToken, navigate]);
+  const handleDelete = () => {
+    setLoading(true);
+    axios
+      .delete("http://34.71.240.100/api/product/delete", {
+        data: { id },
+        headers: { Authorization: `Bearer ${authToken}` },
+      })
+      .then(() => {
+        setShowModal(false);
+        navigate("/");
+      })
+      .catch(() => {
+        alert("Erro ao excluir o produto.");
+        setLoading(false);
+      });
+  };
 
   return (
-    <div>
-      <h1>Excluir Produto</h1>
-      {message && <p>{message}</p>}
-    </div>
+    <Modal show={showModal} onHide={() => navigate("/")} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Confirmar Exclusão</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Tem certeza de que deseja excluir este produto?</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => navigate("/")}>
+          Cancelar
+        </Button>
+        <Button variant="danger" onClick={handleDelete} disabled={loading}>
+          {loading ? "Excluindo..." : "Excluir"}
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 

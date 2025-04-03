@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import FormField from "../components/FormField";
+import Message from "../components/Message";
 
 function Create() {
   const [name, setName] = useState("");
@@ -10,13 +13,11 @@ function Create() {
   const [stockQuantity, setStockQuantity] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-
   const authToken = localStorage.getItem("authToken");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validação dos campos
     if (!name || !description || !price || stockQuantity === "") {
       setMessage("Por favor, preencha todos os campos.");
       return;
@@ -45,89 +46,64 @@ function Create() {
         }
       );
 
-      console.log("Resposta da API:", response.data);
-
       if (response.data.success) {
         setMessage("Produto adicionado com sucesso!");
-        setTimeout(() => {
-          navigate("/"); // Redireciona para a página Home
-        }, 2000);
+        setTimeout(() => navigate("/"), 2000);
       } else {
         setMessage("Erro ao adicionar o produto.");
       }
     } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
       setMessage("Erro ao adicionar o produto.");
     }
   };
 
   return (
-    <div>
-      <h1>Adicionar Produto</h1>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Nome do Produto:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="description">Descrição:</label>
-          <input
-            type="text"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="price">Preço:</label>
-          <input
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-            min="0.01"
-            step="0.01"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="status">Status:</label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(Number(e.target.value))}
-            required
-          >
-            <option value="1">Em Estoque</option>
-            <option value="2">Em Reposição</option>
-            <option value="3">Em Falta</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="stockQuantity">Quantidade em Estoque:</label>
-          <input
-            type="number"
-            id="stockQuantity"
-            value={stockQuantity}
-            onChange={(e) => setStockQuantity(Number(e.target.value))}
-            required
-            min="0"
-          />
-        </div>
-
-        <button type="submit">Adicionar Produto</button>
+    <div className="container mt-4">
+      <Navbar />
+      <h1 className="mb-4">Adicionar Produto</h1>
+      {message && <Message text={message} />}
+      <form onSubmit={handleSubmit} className="border p-4 rounded">
+        <FormField
+          label="Nome do Produto"
+          id="name"
+          value={name}
+          onChange={setName}
+        />
+        <FormField
+          label="Descrição"
+          id="description"
+          value={description}
+          onChange={setDescription}
+        />
+        <FormField
+          label="Preço"
+          id="price"
+          value={price}
+          onChange={setPrice}
+          type="number"
+        />
+        <FormField
+          label="Status"
+          id="status"
+          value={status}
+          onChange={(value) => setStatus(Number(value))}
+          type="select"
+          options={[
+            { value: 1, label: "Em Estoque" },
+            { value: 2, label: "Em Reposição" },
+            { value: 3, label: "Em Falta" },
+          ]}
+        />
+        <FormField
+          label="Quantidade em Estoque"
+          id="stockQuantity"
+          value={stockQuantity}
+          onChange={setStockQuantity}
+          type="number"
+        />
+        <button type="submit" className="btn btn-primary">
+          Adicionar Produto
+        </button>
       </form>
     </div>
   );
